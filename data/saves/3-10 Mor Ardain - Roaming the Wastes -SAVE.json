@@ -1,4 +1,5 @@
 {
+  "volume": -13,
   "quan": [
     false,
     false,
@@ -20,12 +21,13 @@
     "tgate1": 8,
     "startTime": 8567.1875,
     "tempoSet": true,
-    "tempoDiv": 4
+    "tempoDiv": 8
   },
   "trackInd": 1,
   "tool": 3,
   "tracks": [
     {
+      "volume": 60,
       "notes": [],
       "taps": [],
       "name": "Master",
@@ -33,16 +35,27 @@
       "instrument": 0
     },
     {
+      "volume": 90,
       "notes": [
         {
-          "length": 5852,
-          "time": 31976,
+          "length": 5851,
+          "time": 31977,
           "pitch": 59
         },
         {
-          "length": 5852,
+          "length": 5851,
+          "time": 31977,
+          "pitch": 71
+        },
+        {
+          "length": 2926,
           "time": 37828,
           "pitch": 59
+        },
+        {
+          "length": 2926,
+          "time": 37828,
+          "pitch": 71
         },
         {
           "length": 5852,
@@ -51,29 +64,433 @@
         },
         {
           "length": 5852,
+          "time": 43680,
+          "pitch": 74
+        },
+        {
+          "length": 5852,
           "time": 49532,
           "pitch": 64
         },
         {
-          "length": 17556,
-          "time": 55384,
+          "length": 5852,
+          "time": 49532,
+          "pitch": 76
+        },
+        {
+          "length": 11705,
+          "time": 55385,
           "pitch": 66
         },
         {
-          "length": 17556,
-          "time": 72941,
+          "length": 11704,
+          "time": 55385,
+          "pitch": 78
+        },
+        {
+          "length": 11703,
+          "time": 72942,
           "pitch": 64
         },
         {
           "length": 11704,
+          "time": 72942,
+          "pitch": 76
+        },
+        {
+          "length": 5852,
           "time": 90498,
           "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 90498,
+          "pitch": 71
+        },
+        {
+          "length": 11704,
+          "time": 102203,
+          "pitch": 66
+        },
+        {
+          "length": 11704,
+          "time": 102203,
+          "pitch": 78
+        },
+        {
+          "length": 11703,
+          "time": 119760,
+          "pitch": 64
+        },
+        {
+          "length": 11703,
+          "time": 119760,
+          "pitch": 76
+        },
+        {
+          "length": 5852,
+          "time": 137315,
+          "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 137315,
+          "pitch": 71
+        },
+        {
+          "length": 11704,
+          "time": 149021,
+          "pitch": 66
+        },
+        {
+          "length": 11703,
+          "time": 149021,
+          "pitch": 78
+        },
+        {
+          "length": 11704,
+          "time": 166577,
+          "pitch": 64
+        },
+        {
+          "length": 11705,
+          "time": 166577,
+          "pitch": 76
+        },
+        {
+          "length": 5852,
+          "time": 184133,
+          "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 184133,
+          "pitch": 71
+        },
+        {
+          "length": 5852,
+          "time": 195838,
+          "pitch": 62
+        },
+        {
+          "length": 5852,
+          "time": 195838,
+          "pitch": 74
+        },
+        {
+          "length": 5852,
+          "time": 207542,
+          "pitch": 62
+        },
+        {
+          "length": 5852,
+          "time": 207542,
+          "pitch": 74
+        },
+        {
+          "length": 5852,
+          "time": 219246,
+          "pitch": 62
+        },
+        {
+          "length": 5852,
+          "time": 219246,
+          "pitch": 74
+        },
+        {
+          "length": 17555,
+          "time": 225100,
+          "pitch": 64
+        },
+        {
+          "length": 17555,
+          "time": 225100,
+          "pitch": 76
+        },
+        {
+          "length": 11704,
+          "time": 242656,
+          "pitch": 66
+        },
+        {
+          "length": 11704,
+          "time": 242656,
+          "pitch": 78
+        },
+        {
+          "length": 11703,
+          "time": 260213,
+          "pitch": 64
+        },
+        {
+          "length": 11703,
+          "time": 260213,
+          "pitch": 76
+        },
+        {
+          "length": 5852,
+          "time": 277768,
+          "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 277768,
+          "pitch": 71
+        },
+        {
+          "length": 11703,
+          "time": 289474,
+          "pitch": 66
+        },
+        {
+          "length": 11704,
+          "time": 289474,
+          "pitch": 78
+        },
+        {
+          "length": 11703,
+          "time": 307031,
+          "pitch": 64
+        },
+        {
+          "length": 11703,
+          "time": 307031,
+          "pitch": 76
+        },
+        {
+          "length": 5852,
+          "time": 324586,
+          "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 324586,
+          "pitch": 71
+        },
+        {
+          "length": 11703,
+          "time": 336292,
+          "pitch": 66
+        },
+        {
+          "length": 11703,
+          "time": 336292,
+          "pitch": 78
+        },
+        {
+          "length": 11705,
+          "time": 353848,
+          "pitch": 64
+        },
+        {
+          "length": 11704,
+          "time": 353848,
+          "pitch": 76
+        },
+        {
+          "length": 5852,
+          "time": 371404,
+          "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 371404,
+          "pitch": 71
+        },
+        {
+          "length": 2926,
+          "time": 383108,
+          "pitch": 62
+        },
+        {
+          "length": 2926,
+          "time": 383108,
+          "pitch": 74
+        },
+        {
+          "length": 2926,
+          "time": 394813,
+          "pitch": 62
+        },
+        {
+          "length": 2926,
+          "time": 394813,
+          "pitch": 74
+        },
+        {
+          "length": 5852,
+          "time": 406517,
+          "pitch": 62
+        },
+        {
+          "length": 5852,
+          "time": 406517,
+          "pitch": 74
+        },
+        {
+          "length": 17556,
+          "time": 412370,
+          "pitch": 64
+        },
+        {
+          "length": 17556,
+          "time": 412370,
+          "pitch": 76
+        },
+        {
+          "length": 81930,
+          "time": 429927,
+          "pitch": 73
         }
       ],
       "taps": [],
       "name": "Strings",
       "hue": 19.94297218322754,
-      "instrument": 0
+      "instrument": 48
+    },
+    {
+      "volume": 90,
+      "notes": [
+        {
+          "length": 46817,
+          "time": 55385,
+          "pitch": 35
+        },
+        {
+          "length": 46817,
+          "time": 55385,
+          "pitch": 47
+        },
+        {
+          "length": 46817,
+          "time": 102203,
+          "pitch": 33
+        },
+        {
+          "length": 46818,
+          "time": 102203,
+          "pitch": 45
+        },
+        {
+          "length": 46816,
+          "time": 149021,
+          "pitch": 31
+        },
+        {
+          "length": 46816,
+          "time": 149021,
+          "pitch": 43
+        },
+        {
+          "length": 5852,
+          "time": 195838,
+          "pitch": 28
+        },
+        {
+          "length": 5852,
+          "time": 195838,
+          "pitch": 40
+        },
+        {
+          "length": 5852,
+          "time": 207542,
+          "pitch": 28
+        },
+        {
+          "length": 5852,
+          "time": 207542,
+          "pitch": 40
+        },
+        {
+          "length": 17555,
+          "time": 225100,
+          "pitch": 30
+        },
+        {
+          "length": 17555,
+          "time": 225100,
+          "pitch": 42
+        },
+        {
+          "length": 46817,
+          "time": 242656,
+          "pitch": 35
+        },
+        {
+          "length": 46817,
+          "time": 242656,
+          "pitch": 47
+        },
+        {
+          "length": 81930,
+          "time": 242656,
+          "pitch": 59
+        },
+        {
+          "length": 46817,
+          "time": 289474,
+          "pitch": 33
+        },
+        {
+          "length": 46817,
+          "time": 289474,
+          "pitch": 45
+        },
+        {
+          "length": 11704,
+          "time": 324587,
+          "pitch": 59
+        },
+        {
+          "length": 46817,
+          "time": 336292,
+          "pitch": 31
+        },
+        {
+          "length": 46816,
+          "time": 336292,
+          "pitch": 43
+        },
+        {
+          "length": 46817,
+          "time": 336292,
+          "pitch": 71
+        },
+        {
+          "length": 2926,
+          "time": 383108,
+          "pitch": 28
+        },
+        {
+          "length": 2926,
+          "time": 383108,
+          "pitch": 40
+        },
+        {
+          "length": 2926,
+          "time": 394813,
+          "pitch": 28
+        },
+        {
+          "length": 2926,
+          "time": 394813,
+          "pitch": 40
+        },
+        {
+          "length": 17556,
+          "time": 412370,
+          "pitch": 30
+        },
+        {
+          "length": 17556,
+          "time": 412370,
+          "pitch": 42
+        }
+      ],
+      "taps": [],
+      "name": "Horns",
+      "hue": 89.85160064697266,
+      "instrument": 57
     }
   ]
 }

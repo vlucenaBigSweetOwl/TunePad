@@ -25,6 +25,9 @@ class Track{
 				int comp = a.endTime - b.endTime;
 				if(comp == 0){
 					comp = a.pitch - b.pitch;
+					if(comp == 0){
+						comp = a.time - b.time;
+					}
 				}
 				return comp;
 			}
@@ -42,6 +45,9 @@ class Track{
 				int comp = a.endTime - b.endTime;
 				if(comp == 0){
 					comp = a.pitch - b.pitch;
+					if(comp == 0){
+						comp = a.time - b.time;
+					}
 				}
 				return comp;
 			}
@@ -59,6 +65,9 @@ class Track{
 				int comp = a.endTime - b.endTime;
 				if(comp == 0){
 					comp = a.pitch - b.pitch;
+					if(comp == 0){
+						comp = a.time - b.time;
+					}
 				}
 				return comp;
 			}
@@ -68,6 +77,7 @@ class Track{
 		name = trackj.getString("name");
 		hue = trackj.getFloat("hue");
 		instrument = trackj.getInt("instrument");
+		volume = trackj.getInt("volume");
 
 		JSONArray notesj = trackj.getJSONArray("notes");
 		for(int i = 0; i < notesj.size(); i++){
@@ -83,6 +93,7 @@ class Track{
 	}
 
 	void setInstrument(int i){
+		instrument = i;
 		channels[index].programChange(192+index,i);
 	}
 
@@ -91,7 +102,7 @@ class Track{
 		stops.remove(n);
 		n.length = length;
 		notes.add(n);
-		notes.add(n);
+		stops.add(n);
 	}
 
 	void clearNotes(){
@@ -189,13 +200,21 @@ class Track{
 			if(s < lastS){
 				out = (SortedSet<Note>) new TreeSet<Note>();
 			} else {
+				try{
 				out = ((TreeSet<Note>)general).subSet(checklast,true,checks,true);
+				}catch(Exception e){
+					return (SortedSet<Note>) new TreeSet<Note>();
+				}
 			}
 		} else if (from == TAP){
 			if(s - lastS < 0){
 				out = (SortedSet<Integer>) new TreeSet<Integer>();
 			} else {
+				try{
 				out = ((TreeSet<Integer>)general).subSet((int)lastS,true,(int)s,true);
+				}catch(Exception e){
+					return (SortedSet<Note>) new TreeSet<Note>();
+				}
 			}
 		} else {
 			out = (SortedSet<Integer>) new TreeSet<Integer>();
@@ -212,6 +231,7 @@ class Track{
 		out.setString("name",name);
 		out.setFloat("hue",hue);
 		out.setInt("instrument",instrument);
+		out.setInt("volume",volume);
 
 		JSONArray notesj = new JSONArray();
 		int i = 0;

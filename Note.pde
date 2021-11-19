@@ -37,6 +37,7 @@ class Note implements Comparable{
 		y = (int)(-pitch + rollMid + (rollZoom/2))*row;
 		w = length/step;
 		h = row;
+		endTime = time+length;
 	}
 
 	void reverseDim(int s, int step, boolean quantize){
@@ -50,7 +51,7 @@ class Note implements Comparable{
 	void display(int s, int step, float hue, float trans){
 		updateDim(s,step);
 
-		fill(hue,100,255,trans/2);
+		fill(hue,100,255,trans/1.4);
 		stroke(hue,100,255,trans);
 		rect(x,y,w,h);
 	}
@@ -66,6 +67,9 @@ class Note implements Comparable{
 		int comp = time - ((Note)o).time;
 		if(comp == 0){
 			comp = pitch - ((Note)o).pitch;
+			if(comp == 0){
+				comp = endTime - ((Note)o).endTime;
+			}
 		}
 		return comp;
 	}

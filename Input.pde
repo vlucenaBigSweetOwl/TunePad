@@ -33,7 +33,7 @@ void mousePressed(){
 		lastPitch = pitch;
 		Track t = tracks.get(trackInd);
 		channels[trackInd].noteOn(pitch+playBackInd,t.volume);
-		if(mouseButton == LEFT){
+		if(lmHeld){
 			chosen = checkChosen();
 			if(chosen != null){
 				chosen.track.removeNote(chosen);
@@ -66,11 +66,11 @@ void mouseReleased(){
 	}
 	if(tool == TEMPO){
 		if(lmHeld){
-			tgate1 = (int)((XtoS(mouseX) - startTime + (tempo*.5)) / tempo);
-			tgate1s = XtoS(mouseX);
+			tgate1 = (int)((XtoS(mouseX,false) - startTime + (tempo*.5)) / tempo);
+			tgate1s = XtoS(mouseX,false);
 		} else if(rmHeld){
-			tgate2 = (int)((XtoS(mouseX) - startTime + (tempo*.5)) / tempo);
-			tgate2s = XtoS(mouseX);
+			tgate2 = (int)((XtoS(mouseX,false) - startTime + (tempo*.5)) / tempo);
+			tgate2s = XtoS(mouseX,false);
 		}
 		
 	}
@@ -78,25 +78,17 @@ void mouseReleased(){
 		int row = (int)((height - mouseY)/(height*1.0/rollZoom)) + 1;
 		int pitch = rollMid - (rollZoom/2) + row;
 		if(lmHeld){
-			if(lmTimer > hold){
-				//TODO
-				if(chosen.length < 0){
-					chosen.track.notes.remove(chosen);
-					chosen = null;
-				}
+			if(lmTimer > hold && chosen.length > 0){
 				if(quan[PEN]){
-					float off = (chosen.length + (tempo/tempoDiv)/2)%(tempo/tempoDiv)-(tempo/tempoDiv)/2;
-					int length = (int)(chosen.length - off);
-					
-					if(length <= 0){
-						chosen.track.removeNote(chosen);
-					} else {
-						chosen.track.setNoteLength(chosen,(int)(tempo/tempoDiv));
+					chosen.length = XtoS(mouseX,true) - chosen.time;
+					if(chosen.length > 0){
+						tracks.get(trackInd).addNote(chosen.time,chosen.pitch,chosen.length,false);
 					}
+				} else {
+					tracks.get(trackInd).addNote(chosen.time,chosen.pitch,chosen.length,false);
 				}
 			} else {
-				tracks.get(trackInd).addNote(XtoS(mouseX),pitch,-1, quan[PEN]);
-				// TODO: midi volume
+				tracks.get(trackInd).addNote(XtoS(mouseX,false),pitch,-1, quan[PEN]);
 			}
 		}
 
@@ -120,6 +112,7 @@ void mouseReleased(){
 	rmTimer = 0;
 	lmTimer = 0;
 	qTimer = 0;
+	chosen = null;
 }
 
 void holdTimerUpdate(){
@@ -147,7 +140,8 @@ void holdTimerUpdate(){
 	if(tool == PEN && lmTimer == hold){
 		int row = (int)((height - pressY)/(height*1.0/rollZoom)) + 1;
 		int pitch = rollMid - (rollZoom/2) + row;
-		chosen = tracks.get(trackInd).addNoteX(pressX,pitch,0, quan[PEN]);
+		int time = XtoS(pressX,quan[PEN]);
+		chosen = new Note(null,time,pitch,0);
 	}
 	if(lmTimer > hold){
 		if(tool == TAP){
@@ -158,7 +152,7 @@ void holdTimerUpdate(){
 			}
 			line(x,0,x,height);
 		} else if (tool == PEN){
-			chosen.length = XtoS(mouseX) - chosen.time;
+			chosen.length = XtoS(mouseX,false) - chosen.time;
 		} else if(tool == TEMPO){
 			stroke(150,20,255,150);
 			int x = mouseX;
@@ -239,6 +233,7 @@ void keyPressed(){
 	int s = s();
 	if(key == '.'){
 		println(frameRate + " " + zoom);
+		println(tracks.get(trackInd).instrument);
 	}
 	if(key == 'q'){
 		qHeld = true;
@@ -308,6 +303,9 @@ void keyPressed(){
 	} else if(key == 'd'){
 		if(song2.isPlaying()){
 			playBackInd++;
+			for(MidiChannel c: channels){
+				c.allNotesOff();
+			}
 		} else {
 			if(song2.position() <= 0){
 				song2.cue(0);
@@ -318,10 +316,9 @@ void keyPressed(){
 			}
 		}
 	} else if(key == 'a'){
-		if(song2.isPlaying()){
-			playBackInd--;
-		} else {
-			playBackInd--;
+		playBackInd--;
+		for(MidiChannel c: channels){
+			c.allNotesOff();
 		}
 	}
 	if(keyCode == LEFT && !leftHeld){

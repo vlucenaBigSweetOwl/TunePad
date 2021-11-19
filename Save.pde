@@ -134,6 +134,7 @@ void loadFile(File f){
 
 	tool = json.getInt("tool");
 	trackInd = json.getInt("trackInd");
+	volume = json.getInt("volume");
 
 	JSONArray quanj = json.getJSONArray("quan");
 	for(int i = 0; i < quanj.size(); i++){
@@ -174,6 +175,7 @@ void saveFile(File f){
 	json.setString("filePath",fileName);
 	json.setInt("tool",tool);
 	json.setInt("trackInd",trackInd);
+	json.setInt("volume",volume);
 
 	JSONArray quanj = new JSONArray();
 	for(int i = 0; i < quan.length; i++){

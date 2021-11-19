@@ -179,6 +179,9 @@ void draw(){
 		for(Track t: tracks){
 			t.display(s,step);
 		}
+		if(chosen!=null){
+			chosen.display(s,step,tracks.get(trackInd).hue,255);
+		}
 
 		
 		if(tgate1 != -1 && tgate2 != -1){
@@ -314,9 +317,13 @@ int quanX(int x){
 	return x;
 }
 
-int XtoS(int x){
+int XtoS(int x, boolean quan){
 	int time = s() + (x-width/2)*step();
-	return time;
+	int off = 0;
+	if(quan){
+		off = (int)((time - startTime + (tempo/tempoDiv)/2 )%(tempo/tempoDiv) - (tempo/tempoDiv)/2);
+	}
+	return time - off;
 }
 
 
