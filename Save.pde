@@ -12,11 +12,11 @@ void songPick(File f){
 	WaitingDialog dialog = uib.showWaitingDialog("Starting", "Please wait",true);
 	if(f == null){
 		//selectInput("Select a song file:","songPick");
+    	dialog.close();
 		return;
 	} else {
 		try{
 			fileName = f.getCanonicalPath();
-
 		} catch(Exception e){
 			//
 		}
@@ -25,8 +25,8 @@ void songPick(File f){
 	try{
 		song2 = new FilePlayer(minim.loadFileStream(fileName));
 	} catch (Exception e){
-		println("pip");
 		uib.showErrorDialog("Failed to load\n" + fileName + "\n", "ERROR");
+    	dialog.close();
 	}
 
 	sample = minim.loadSample(fileName,1024);

@@ -1,0 +1,79 @@
+{
+  "quan": [
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "filePath": "D:\\Code\\TunePad\\data\\songs\\3-10 Mor Ardain - Roaming the Wastes -.mp3",
+  "tempo": {
+    "tgate1s": 195838,
+    "tgate2s": 8271892,
+    "tgate2": 353,
+    "tempo": 23408.8515625,
+    "tgate1": 8,
+    "startTime": 8567.1875,
+    "tempoSet": true,
+    "tempoDiv": 4
+  },
+  "trackInd": 1,
+  "tool": 3,
+  "tracks": [
+    {
+      "notes": [],
+      "taps": [],
+      "name": "Master",
+      "hue": 218.32777404785156,
+      "instrument": 0
+    },
+    {
+      "notes": [
+        {
+          "length": 5852,
+          "time": 31976,
+          "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 37828,
+          "pitch": 59
+        },
+        {
+          "length": 5852,
+          "time": 43680,
+          "pitch": 62
+        },
+        {
+          "length": 5852,
+          "time": 49532,
+          "pitch": 64
+        },
+        {
+          "length": 17556,
+          "time": 55384,
+          "pitch": 66
+        },
+        {
+          "length": 17556,
+          "time": 72941,
+          "pitch": 64
+        },
+        {
+          "length": 11704,
+          "time": 90498,
+          "pitch": 59
+        }
+      ],
+      "taps": [],
+      "name": "Strings",
+      "hue": 19.94297218322754,
+      "instrument": 0
+    }
+  ]
+}

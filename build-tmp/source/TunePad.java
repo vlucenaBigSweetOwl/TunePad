@@ -7,7 +7,6 @@ import processing.opengl.*;
 import ddf.minim.*;
 import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
-import themidibus.*;
 import java.util.*;
 import processing.awt.*;
 import processing.javafx.*;
@@ -15,16 +14,12 @@ import uibooster.*;
 import uibooster.model.*;
 import uibooster.components.*;
 import javax.sound.midi.*;
-import uk.co.xfactorylibrarians.coremidi4j.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.UIManager;
 import javax.swing.SwingUtilities;
 import uibooster.*;
 import uibooster.model.*;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiNotification;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiException;
 import javax.sound.midi.MidiDevice;
 
 import java.util.HashMap;
@@ -42,6 +37,7 @@ public class TunePad extends PApplet {
 
 
 
+//import themidibus.*;
 
 
 
@@ -49,8 +45,7 @@ public class TunePad extends PApplet {
 
 
 
-
-
+//import uk.co.xfactorylibrarians.coremidi4j.*;
 
 // machine learning leading questions?
 
@@ -86,14 +81,14 @@ MyMenuBar menu;
 UiBooster uib = new UiBooster(
     UiBoosterOptions.Theme.DARK_THEME
 );;
-String midiDevice = "Microsoft GS Wavetable Synth";
+Synthesizer midiSynth;
 
 int playBackInd = 0;
 float playBackRate = 1.0f;
 
 float offBase = -170;
 float off = -170;
-float zoom = 1;
+float zoom = 69;
 float zoomSpeed = 1.10f;
 int zoomTotal = 0;
 int seekTotal = 0;
@@ -126,21 +121,26 @@ Note chosen;
 int playDelayStart = -1;
 int playDelayLast = -1;
 
-String[] instrumentList;
+javax.sound.midi.Instrument[] inlist;
+String[] inlistNames;
+MidiChannel[] channels;
 
  public void setup(){
-	Synthesizer syn;
+	println("hi");
 	try{
-		syn = MidiSystem.getSynthesizer();
-		syn.open();
-		javax.sound.midi.Instrument[] inlist = syn.getAvailableInstruments();
-		instrumentList = new String[inlist.length];
+		midiSynth = MidiSystem.getSynthesizer();
+		midiSynth.open();
+		channels = midiSynth.getChannels();
+		inlist = midiSynth.getAvailableInstruments();
+		inlistNames = new String[inlist.length];
 		for(int i = 0; i < inlist.length; i++){
-			instrumentList[i] = inlist[i].getName();
-			//println(instrumentList[i]);
+			midiSynth.loadInstrument(inlist[i]);
+			inlistNames[i] = inlist[i].getName();
+			//println(inlistNames[i]);
 		}
 	} catch(Exception e){}
 	
+
 	menu = new MyMenuBar((PSurfaceAWT)surface,"Test",100,100);
 	/* size commented out by preprocessor */;
 	//surface.setResizable(true);
@@ -153,6 +153,7 @@ String[] instrumentList;
 	colorMode(HSB);
 	startSongPick();
 
+	println("lo");
 }
 
  public int s(){
@@ -317,11 +318,15 @@ String[] instrumentList;
 }
 
  public void exit(){
-	for(Track t: tracks){
-		t.midibus.clearAll();
+	midiSynth.close();
+	try{
+		minim.stop();
+	}catch(Exception e){}
+	
+	if(state != EDIT){
+		exitActual();
 	}
-	minim.stop();
-	state = EXIT;
+	state = EXIT; 
 	uib.showConfirmDialog(
         "Would you like to save?",
         "Exiting",
@@ -353,13 +358,13 @@ String[] instrumentList;
 		SortedSet<Note> window = (SortedSet<Note>)(SortedSet<?>)t.getWindow(s+getMIDIoff(),lastS+getMIDIoff(),STOPS);
 
 		for(Note n: window){
-			t.midibus.sendNoteOff(t.index,n.pitch+playBackInd,t.volume);
+			channels[t.index].noteOff(n.pitch+playBackInd,t.volume);
 		}
 
 		window = (SortedSet<Note>)(SortedSet<?>)t.getWindow(s+getMIDIoff(), lastS+getMIDIoff(),START);
 
 		for(Note n: window){
-			t.midibus.sendNoteOn(t.index,n.pitch+playBackInd,t.volume);
+			channels[t.index].noteOn(n.pitch+playBackInd,t.volume);
 		}
 	}
 }
@@ -463,7 +468,7 @@ int pressX,pressY;
 		int pitch = rollMid - (rollZoom/2) + row;
 		lastPitch = pitch;
 		Track t = tracks.get(trackInd);
-		t.midibus.sendNoteOn(trackInd,pitch+playBackInd,t.volume);
+		channels[trackInd].noteOn(pitch+playBackInd,t.volume);
 		if(mouseButton == LEFT){
 			chosen = checkChosen();
 			if(chosen != null){
@@ -496,10 +501,10 @@ int pressX,pressY;
 		}
 	}
 	if(tool == TEMPO){
-		if(mouseButton == LEFT){
+		if(lmHeld){
 			tgate1 = (int)((XtoS(mouseX) - startTime + (tempo*.5f)) / tempo);
 			tgate1s = XtoS(mouseX);
-		} else if(mouseButton == RIGHT){
+		} else if(rmHeld){
 			tgate2 = (int)((XtoS(mouseX) - startTime + (tempo*.5f)) / tempo);
 			tgate2s = XtoS(mouseX);
 		}
@@ -517,9 +522,12 @@ int pressX,pressY;
 				}
 				if(quan[PEN]){
 					float off = (chosen.length + (tempo/tempoDiv)/2)%(tempo/tempoDiv)-(tempo/tempoDiv)/2;
-					chosen.length -= off;
-					if(chosen.length == 0){
-						chosen.length = (int)(tempo/tempoDiv);
+					int length = (int)(chosen.length - off);
+					
+					if(length <= 0){
+						chosen.track.removeNote(chosen);
+					} else {
+						chosen.track.setNoteLength(chosen,(int)(tempo/tempoDiv));
 					}
 				}
 			} else {
@@ -529,8 +537,8 @@ int pressX,pressY;
 		}
 
 		Track t = tracks.get(trackInd);
-		t.midibus.sendNoteOff(trackInd,lastPitch,t.volume);
-		t.midibus.sendNoteOff(trackInd,pitch,t.volume);
+		channels[trackInd].noteOff(lastPitch,t.volume);
+		channels[trackInd].noteOff(pitch,t.volume);
 	}
 	
 	//TODO
@@ -595,8 +603,8 @@ int pressX,pressY;
 			int pitch = rollMid - (rollZoom/2) + row;
 			if(pitch != lastPitch){
 				Track t = tracks.get(trackInd);
-				t.midibus.sendNoteOff(trackInd,lastPitch+playBackInd,t.volume);
-				t.midibus.sendNoteOn(trackInd,pitch+playBackInd,t.volume);
+				channels[trackInd].noteOff(lastPitch+playBackInd,t.volume);
+				channels[trackInd].noteOn(pitch+playBackInd,t.volume);
 				lastPitch = pitch;
 			}
 		} else if(tool == TEMPO){
@@ -609,8 +617,8 @@ int pressX,pressY;
 	if(leftHeld){
 		if(song2.isPlaying()){
 			song2.pause();
-			for(Track t: tracks){
-				t.midibus.sendMessage(176+t.index, 123);
+			for(MidiChannel c: channels){
+				c.allNotesOff();
 			}
 		}
 		song2.skip((int)(-leftTime*3 *(60/frameRate)));
@@ -661,7 +669,7 @@ int pressX,pressY;
 	key = Character.toLowerCase(key);
 	int s = s();
 	if(key == '.'){
-		println(frameRate);
+		println(frameRate + " " + zoom);
 	}
 	if(key == 'q'){
 		qHeld = true;
@@ -725,8 +733,8 @@ int pressX,pressY;
 			playBackInd = 0;
 		}
 		song2.pause();
-		for(Track t: tracks){
-			t.midibus.sendMessage(176+t.index, 123);
+		for(MidiChannel c: channels){
+			c.allNotesOff();
 		}
 	} else if(key == 'd'){
 		if(song2.isPlaying()){
@@ -808,9 +816,6 @@ int pressX,pressY;
 	}
 
 }
-
-
-
 
 
 
@@ -969,9 +974,9 @@ class MyMenuBar {
 					String selection = uib.showSelectionDialog(
 						"Pick and Instrument ...",
 						"Track Instrument",
-						instrumentList);
+						inlistNames);
 
-					int i = Arrays.asList(instrumentList).indexOf(selection);
+					int i = Arrays.asList(inlistNames).indexOf(selection);
 					if(i != -1){
 						tracks.get(trackInd).setInstrument(i);
 					}
@@ -1027,28 +1032,11 @@ class MyMenuBar {
 
 				}}));
 
-		JMenuItem itemMidiDevice = new JMenuItem("MidiDevice");
 		JMenuItem itemControls = new JMenuItem("Controls");
 		//MenuItem itemRecent = new MenuItem("Open Recent");
 
-		helpm.add(itemMidiDevice);
 		helpm.add(itemControls);
-		itemMidiDevice.addActionListener((new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent a) {
-				ArrayList<String> options = new ArrayList<String>();
-				for (javax.sound.midi.MidiDevice.Info device : CoreMidiDeviceProvider.getMidiDeviceInfo()) {
-		            options.add(device.toString());
-		        }
-		        try{println(CoreMidiDeviceProvider.isLibraryLoaded());}catch(Exception e){}
-		        String selection = uib.showSelectionDialog(
-						"Select a MIDI Output Device\nWindows: Microsoft GS Wavetable Synth\nMac: CoreMidi4j",
-						"MIDI Device",
-						options);
-		        midiDevice = selection;
-		        for(Track t: tracks){
-		        	t.setMidiDevice(selection);
-		        }
-			}}));
+		
 
 		itemControls.addActionListener((new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent a) {
@@ -1169,11 +1157,11 @@ class Note implements Comparable{
 	WaitingDialog dialog = uib.showWaitingDialog("Starting", "Please wait",true);
 	if(f == null){
 		//selectInput("Select a song file:","songPick");
+    	dialog.close();
 		return;
 	} else {
 		try{
 			fileName = f.getCanonicalPath();
-
 		} catch(Exception e){
 			//
 		}
@@ -1182,8 +1170,8 @@ class Note implements Comparable{
 	try{
 		song2 = new FilePlayer(minim.loadFileStream(fileName));
 	} catch (Exception e){
-		println("pip");
 		uib.showErrorDialog("Failed to load\n" + fileName + "\n", "ERROR");
+    	dialog.close();
 	}
 
 	sample = minim.loadSample(fileName,1024);
@@ -1379,13 +1367,11 @@ class Track{
 	TreeSet<Note> stops;
 	float hue;
 	TreeSet<Integer> taps;
-	MidiBus midibus;
 	int instrument;
 	int volume = 60;
 
 
 	Track(int i){
-		midibus = new MidiBus(this, 0 , midiDevice);
 		index = i;
 		name = "Track "+i;
 		notes = new TreeSet<Note>();
@@ -1400,10 +1386,9 @@ class Track{
 		});
 		taps = new TreeSet<Integer>();
 		hue = random(0,255);
-		midibus.sendMessage(192+index,0);
+		channels[index].programChange(192+index,0);
 	}
 	Track(String name, int i){
-		midibus = new MidiBus(this, 0 , midiDevice);
 		index = i;
 		this.name = name;
 		notes = new TreeSet<Note>();
@@ -1418,10 +1403,9 @@ class Track{
 		});
 		taps = new TreeSet<Integer>();
 		hue = random(0,255);
-		midibus.sendMessage(192+index,0);
+		channels[index].programChange(192+index,0);
 	}
 	Track(JSONObject trackj, int ind){
-		midibus = new MidiBus(this, 0 , midiDevice);
 
 		index = ind;
 		notes = new TreeSet<Note>();
@@ -1450,17 +1434,19 @@ class Track{
 		for(int i = 0; i < tapsj.size(); i++){
 			taps.add(tapsj.getInt(i));
 		}
-		midibus.sendMessage(192+index,instrument); // TODO
+		channels[index].programChange(192+index,instrument); // TODO
 	}
 
 	 public void setInstrument(int i){
-		midibus.sendMessage(192+index,i);
+		channels[index].programChange(192+index,i);
 	}
 
-	 public void setMidiDevice(String midi){
-		midibus.sendMessage(176+index, 123);
-		midibus.clearOutputs();
-		midibus.addOutput(midi);
+	 public void setNoteLength(Note n, int length){
+		notes.remove(n);
+		stops.remove(n);
+		n.length = length;
+		notes.add(n);
+		notes.add(n);
 	}
 
 	 public void clearNotes(){
@@ -1512,6 +1498,9 @@ class Track{
 	}
 
 	 public void display(int s, int step){
+		if(notes.size() != stops.size()){
+			println(notes.size() + " " +stops.size());
+		}
 		float trans = 100;
 		if(index == trackInd){
 			trans = 230;

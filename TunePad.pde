@@ -2,7 +2,7 @@
 import ddf.minim.*;
 import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
-import themidibus.*;
+//import themidibus.*;
 import java.util.*;
 import processing.awt.*;
 import processing.javafx.*;
@@ -10,7 +10,7 @@ import uibooster.*;
 import uibooster.model.*;
 import uibooster.components.*;
 import javax.sound.midi.*;
-import uk.co.xfactorylibrarians.coremidi4j.*;
+//import uk.co.xfactorylibrarians.coremidi4j.*;
 
 // machine learning leading questions?
 
@@ -46,14 +46,14 @@ MyMenuBar menu;
 UiBooster uib = new UiBooster(
     UiBoosterOptions.Theme.DARK_THEME
 );;
-String midiDevice = "Microsoft GS Wavetable Synth";
+Synthesizer midiSynth;
 
 int playBackInd = 0;
 float playBackRate = 1.0;
 
 float offBase = -170;
 float off = -170;
-float zoom = 1;
+float zoom = 69;
 float zoomSpeed = 1.10;
 int zoomTotal = 0;
 int seekTotal = 0;
@@ -86,21 +86,26 @@ Note chosen;
 int playDelayStart = -1;
 int playDelayLast = -1;
 
-String[] instrumentList;
+javax.sound.midi.Instrument[] inlist;
+String[] inlistNames;
+MidiChannel[] channels;
 
 void setup(){
-	Synthesizer syn;
+	println("hi");
 	try{
-		syn = MidiSystem.getSynthesizer();
-		syn.open();
-		javax.sound.midi.Instrument[] inlist = syn.getAvailableInstruments();
-		instrumentList = new String[inlist.length];
+		midiSynth = MidiSystem.getSynthesizer();
+		midiSynth.open();
+		channels = midiSynth.getChannels();
+		inlist = midiSynth.getAvailableInstruments();
+		inlistNames = new String[inlist.length];
 		for(int i = 0; i < inlist.length; i++){
-			instrumentList[i] = inlist[i].getName();
-			//println(instrumentList[i]);
+			midiSynth.loadInstrument(inlist[i]);
+			inlistNames[i] = inlist[i].getName();
+			//println(inlistNames[i]);
 		}
 	} catch(Exception e){}
 	
+
 	menu = new MyMenuBar((PSurfaceAWT)surface,"Test",100,100);
 	size(1200, 600);
 	//surface.setResizable(true);
@@ -113,6 +118,7 @@ void setup(){
 	colorMode(HSB);
 	startSongPick();
 
+	println("lo");
 }
 
 int s(){
@@ -277,11 +283,15 @@ void draw(){
 }
 
 void exit(){
-	for(Track t: tracks){
-		t.midibus.clearAll();
+	midiSynth.close();
+	try{
+		minim.stop();
+	}catch(Exception e){}
+	
+	if(state != EDIT){
+		exitActual();
 	}
-	minim.stop();
-	state = EXIT;
+	state = EXIT; 
 	uib.showConfirmDialog(
         "Would you like to save?",
         "Exiting",
@@ -313,13 +323,13 @@ void checkNote(float s, float lastS){
 		SortedSet<Note> window = (SortedSet<Note>)(SortedSet<?>)t.getWindow(s+getMIDIoff(),lastS+getMIDIoff(),STOPS);
 
 		for(Note n: window){
-			t.midibus.sendNoteOff(t.index,n.pitch+playBackInd,t.volume);
+			channels[t.index].noteOff(n.pitch+playBackInd,t.volume);
 		}
 
 		window = (SortedSet<Note>)(SortedSet<?>)t.getWindow(s+getMIDIoff(), lastS+getMIDIoff(),START);
 
 		for(Note n: window){
-			t.midibus.sendNoteOn(t.index,n.pitch+playBackInd,t.volume);
+			channels[t.index].noteOn(n.pitch+playBackInd,t.volume);
 		}
 	}
 }

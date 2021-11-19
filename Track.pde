@@ -12,13 +12,11 @@ class Track{
 	TreeSet<Note> stops;
 	float hue;
 	TreeSet<Integer> taps;
-	MidiBus midibus;
 	int instrument;
 	int volume = 60;
 
 
 	Track(int i){
-		midibus = new MidiBus(this, 0 , midiDevice);
 		index = i;
 		name = "Track "+i;
 		notes = new TreeSet<Note>();
@@ -33,10 +31,9 @@ class Track{
 		});
 		taps = new TreeSet<Integer>();
 		hue = random(0,255);
-		midibus.sendMessage(192+index,0);
+		channels[index].programChange(192+index,0);
 	}
 	Track(String name, int i){
-		midibus = new MidiBus(this, 0 , midiDevice);
 		index = i;
 		this.name = name;
 		notes = new TreeSet<Note>();
@@ -51,10 +48,9 @@ class Track{
 		});
 		taps = new TreeSet<Integer>();
 		hue = random(0,255);
-		midibus.sendMessage(192+index,0);
+		channels[index].programChange(192+index,0);
 	}
 	Track(JSONObject trackj, int ind){
-		midibus = new MidiBus(this, 0 , midiDevice);
 
 		index = ind;
 		notes = new TreeSet<Note>();
@@ -83,17 +79,19 @@ class Track{
 		for(int i = 0; i < tapsj.size(); i++){
 			taps.add(tapsj.getInt(i));
 		}
-		midibus.sendMessage(192+index,instrument); // TODO
+		channels[index].programChange(192+index,instrument); // TODO
 	}
 
 	void setInstrument(int i){
-		midibus.sendMessage(192+index,i);
+		channels[index].programChange(192+index,i);
 	}
 
-	void setMidiDevice(String midi){
-		midibus.sendMessage(176+index, 123);
-		midibus.clearOutputs();
-		midibus.addOutput(midi);
+	void setNoteLength(Note n, int length){
+		notes.remove(n);
+		stops.remove(n);
+		n.length = length;
+		notes.add(n);
+		notes.add(n);
 	}
 
 	void clearNotes(){
@@ -145,6 +143,9 @@ class Track{
 	}
 
 	void display(int s, int step){
+		if(notes.size() != stops.size()){
+			println(notes.size() + " " +stops.size());
+		}
 		float trans = 100;
 		if(index == trackInd){
 			trans = 230;

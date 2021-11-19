@@ -4,9 +4,6 @@ import javax.swing.UIManager;
 import javax.swing.SwingUtilities;
 import uibooster.*;
 import uibooster.model.*;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiNotification;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiException;
 import javax.sound.midi.MidiDevice;
 
 class MyMenuBar {
@@ -159,9 +156,9 @@ class MyMenuBar {
 					String selection = uib.showSelectionDialog(
 						"Pick and Instrument ...",
 						"Track Instrument",
-						instrumentList);
+						inlistNames);
 
-					int i = Arrays.asList(instrumentList).indexOf(selection);
+					int i = Arrays.asList(inlistNames).indexOf(selection);
 					if(i != -1){
 						tracks.get(trackInd).setInstrument(i);
 					}
@@ -217,28 +214,11 @@ class MyMenuBar {
 
 				}}));
 
-		JMenuItem itemMidiDevice = new JMenuItem("MidiDevice");
 		JMenuItem itemControls = new JMenuItem("Controls");
 		//MenuItem itemRecent = new MenuItem("Open Recent");
 
-		helpm.add(itemMidiDevice);
 		helpm.add(itemControls);
-		itemMidiDevice.addActionListener((new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent a) {
-				ArrayList<String> options = new ArrayList<String>();
-				for (javax.sound.midi.MidiDevice.Info device : CoreMidiDeviceProvider.getMidiDeviceInfo()) {
-		            options.add(device.toString());
-		        }
-		        try{println(CoreMidiDeviceProvider.isLibraryLoaded());}catch(Exception e){}
-		        String selection = uib.showSelectionDialog(
-						"Select a MIDI Output Device\nWindows: Microsoft GS Wavetable Synth\nMac: CoreMidi4j",
-						"MIDI Device",
-						options);
-		        midiDevice = selection;
-		        for(Track t: tracks){
-		        	t.setMidiDevice(selection);
-		        }
-			}}));
+		
 
 		itemControls.addActionListener((new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent a) {

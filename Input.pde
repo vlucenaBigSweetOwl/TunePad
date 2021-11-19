@@ -32,7 +32,7 @@ void mousePressed(){
 		int pitch = rollMid - (rollZoom/2) + row;
 		lastPitch = pitch;
 		Track t = tracks.get(trackInd);
-		t.midibus.sendNoteOn(trackInd,pitch+playBackInd,t.volume);
+		channels[trackInd].noteOn(pitch+playBackInd,t.volume);
 		if(mouseButton == LEFT){
 			chosen = checkChosen();
 			if(chosen != null){
@@ -65,10 +65,10 @@ void mouseReleased(){
 		}
 	}
 	if(tool == TEMPO){
-		if(mouseButton == LEFT){
+		if(lmHeld){
 			tgate1 = (int)((XtoS(mouseX) - startTime + (tempo*.5)) / tempo);
 			tgate1s = XtoS(mouseX);
-		} else if(mouseButton == RIGHT){
+		} else if(rmHeld){
 			tgate2 = (int)((XtoS(mouseX) - startTime + (tempo*.5)) / tempo);
 			tgate2s = XtoS(mouseX);
 		}
@@ -86,9 +86,12 @@ void mouseReleased(){
 				}
 				if(quan[PEN]){
 					float off = (chosen.length + (tempo/tempoDiv)/2)%(tempo/tempoDiv)-(tempo/tempoDiv)/2;
-					chosen.length -= off;
-					if(chosen.length == 0){
-						chosen.length = (int)(tempo/tempoDiv);
+					int length = (int)(chosen.length - off);
+					
+					if(length <= 0){
+						chosen.track.removeNote(chosen);
+					} else {
+						chosen.track.setNoteLength(chosen,(int)(tempo/tempoDiv));
 					}
 				}
 			} else {
@@ -98,8 +101,8 @@ void mouseReleased(){
 		}
 
 		Track t = tracks.get(trackInd);
-		t.midibus.sendNoteOff(trackInd,lastPitch,t.volume);
-		t.midibus.sendNoteOff(trackInd,pitch,t.volume);
+		channels[trackInd].noteOff(lastPitch,t.volume);
+		channels[trackInd].noteOff(pitch,t.volume);
 	}
 	
 	//TODO
@@ -164,8 +167,8 @@ void holdTimerUpdate(){
 			int pitch = rollMid - (rollZoom/2) + row;
 			if(pitch != lastPitch){
 				Track t = tracks.get(trackInd);
-				t.midibus.sendNoteOff(trackInd,lastPitch+playBackInd,t.volume);
-				t.midibus.sendNoteOn(trackInd,pitch+playBackInd,t.volume);
+				channels[trackInd].noteOff(lastPitch+playBackInd,t.volume);
+				channels[trackInd].noteOn(pitch+playBackInd,t.volume);
 				lastPitch = pitch;
 			}
 		} else if(tool == TEMPO){
@@ -178,8 +181,8 @@ void holdTimerUpdate(){
 	if(leftHeld){
 		if(song2.isPlaying()){
 			song2.pause();
-			for(Track t: tracks){
-				t.midibus.sendMessage(176+t.index, 123);
+			for(MidiChannel c: channels){
+				c.allNotesOff();
 			}
 		}
 		song2.skip((int)(-leftTime*3 *(60/frameRate)));
@@ -230,7 +233,7 @@ void keyPressed(){
 	key = Character.toLowerCase(key);
 	int s = s();
 	if(key == '.'){
-		println(frameRate);
+		println(frameRate + " " + zoom);
 	}
 	if(key == 'q'){
 		qHeld = true;
@@ -294,8 +297,8 @@ void keyPressed(){
 			playBackInd = 0;
 		}
 		song2.pause();
-		for(Track t: tracks){
-			t.midibus.sendMessage(176+t.index, 123);
+		for(MidiChannel c: channels){
+			c.allNotesOff();
 		}
 	} else if(key == 'd'){
 		if(song2.isPlaying()){
