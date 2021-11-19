@@ -50,7 +50,7 @@ class Note implements Comparable{
 	void display(int s, int step, float hue, float trans){
 		updateDim(s,step);
 
-		fill(hue,100,255,trans/3);
+		fill(hue,100,255,trans/2);
 		stroke(hue,100,255,trans);
 		rect(x,y,w,h);
 	}

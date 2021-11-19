@@ -59,6 +59,7 @@ int zoomTotal = 0;
 int seekTotal = 0;
 int rollZoom = 36;
 int rollMid = 60;
+float waveTrans = 255;
 
 TreeSet<Integer> tempoTaps = new TreeSet<Integer>();
 float lastTap = -1;
@@ -158,34 +159,9 @@ void draw(){
 		}
 		
 
-		strokeWeight(1);
 		translate(width/2,0);
-		for(int i = -width/2; i < width/2; i+=2){
-			int place = constrain(s + step*i,0,sig.length-1);
 
-			float max = 0;
-			float min = 0;
-			
-			int samps = (step*2)/10 ;
-			if(samps <= 0){
-				samps = 1;
-			}
-
-			place += (samps - place%samps)%samps;
-			for(int j = 0; j < step*2; j+=samps){
-				if(place + j >= sig.length || sig.length < 0){
-					break;
-				}
-				max = max(max,sig[place + j]);
-				min = min(min,sig[place + j]);
-			}
-
-			noStroke();
-			fill(255);
-			rect(i,height/2 + min*(height/4),2,max*(height/4) - min*(height/4));
-			
-		}
-		
+		drawWaveForm(s,step);
 
 		stroke(0,0,255);
 		line(0,0,0,height);
@@ -279,6 +255,35 @@ void draw(){
 	if(!focused){
 		fill(30,50,0,150);
 		rect(-1000,-1000,10000,10000);
+	}
+}
+
+void drawWaveForm(int s, int step){
+	strokeWeight(1);
+	for(int i = -width/2; i < width/2; i+=2){
+		int place = constrain(s + step*i,0,sig.length-1);
+
+		float max = 0;
+		float min = 0;
+		
+		int samps = (step*2)/10 ;
+		if(samps <= 0){
+			samps = 1;
+		}
+
+		place += (samps - place%samps)%samps;
+		for(int j = 0; j < step*2; j+=samps){
+			if(place + j >= sig.length || sig.length < 0){
+				break;
+			}
+			max = max(max,sig[place + j]);
+			min = min(min,sig[place + j]);
+		}
+
+		noStroke();
+		fill(255,waveTrans);
+		rect(i,height/2 + min*(height/4),2,max*(height/4) - min*(height/4));
+		
 	}
 }
 

@@ -137,6 +137,11 @@ void holdTimerUpdate(){
 		qTimer++;
 	}
 
+	if(tool == PEN && !song2.isPlaying() && (height/4) < mouseY && mouseY < (height*3/4)){
+		waveTrans = 100;
+	} else {
+		waveTrans = 255;
+	}
 	
 
 	if(tool == PEN && lmTimer == hold){
