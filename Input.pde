@@ -3,9 +3,10 @@ boolean leftHeld, rightHeld, shiftHeld, ctrlHeld, altHeld, qHeld, lmHeld, rmHeld
 int rmTimer, lmTimer, qTimer;
 int leftTime, rightTime;
 int mouseDist;
-int hold = 12;
+int hold = 10;
 int lastPitch;
 boolean metafocused = false;
+int pressX,pressY;
 
 void mousePressed(){
 	if(!metafocused){
@@ -15,12 +16,17 @@ void mousePressed(){
 	if(state != EDIT){
 		return;
 	}
+	if(checkTrackSelector()){
+		return;
+	}
+
 	if(mouseButton == LEFT){
 		lmHeld = true;
 	} else if(mouseButton == RIGHT){
 		rmHeld = true;
 	}
-
+	pressX = mouseX;
+	pressY = mouseY;
 	if(tool == PEN){
 		int row = (int)((height - mouseY)/(height*1.0/rollZoom)) + 1;
 		int pitch = rollMid - (rollZoom/2) + row;
@@ -68,10 +74,10 @@ void mouseReleased(){
 		}
 		
 	}
-	if(tool == PEN && lmHeld){
+	if(tool == PEN){
 		int row = (int)((height - mouseY)/(height*1.0/rollZoom)) + 1;
 		int pitch = rollMid - (rollZoom/2) + row;
-		if(mouseButton == LEFT){
+		if(lmHeld){
 			if(lmTimer > hold){
 				//TODO
 				if(chosen.length < 0){
@@ -85,9 +91,6 @@ void mouseReleased(){
 						chosen.length = (int)(tempo/tempoDiv);
 					}
 				}
-				
-				
-				// note off later?
 			} else {
 				tracks.get(trackInd).addNote(XtoS(mouseX),pitch,-1, quan[PEN]);
 				// TODO: midi volume
@@ -95,8 +98,8 @@ void mouseReleased(){
 		}
 
 		Track t = tracks.get(trackInd);
-		t.midibus.sendNoteOn(trackInd,pitch+playBackInd,t.volume);
 		t.midibus.sendNoteOff(trackInd,lastPitch,t.volume);
+		t.midibus.sendNoteOff(trackInd,pitch,t.volume);
 	}
 	
 	//TODO
@@ -131,11 +134,12 @@ void holdTimerUpdate(){
 		qTimer++;
 	}
 
-	int row = (int)((height - mouseY)/(height*1.0/rollZoom)) + 1;
-	int pitch = rollMid - (rollZoom/2) + row;
+	
 
 	if(tool == PEN && lmTimer == hold){
-		chosen = tracks.get(trackInd).addNoteX(mouseX,pitch,0, quan[PEN]);
+		int row = (int)((height - pressY)/(height*1.0/rollZoom)) + 1;
+		int pitch = rollMid - (rollZoom/2) + row;
+		chosen = tracks.get(trackInd).addNoteX(pressX,pitch,0, quan[PEN]);
 	}
 	if(lmTimer > hold){
 		if(tool == TAP){
@@ -156,6 +160,8 @@ void holdTimerUpdate(){
 
 	if(rmTimer > hold){
 		if(tool == PEN){
+			int row = (int)((height - mouseY)/(height*1.0/rollZoom)) + 1;
+			int pitch = rollMid - (rollZoom/2) + row;
 			if(pitch != lastPitch){
 				Track t = tracks.get(trackInd);
 				t.midibus.sendNoteOff(trackInd,lastPitch+playBackInd,t.volume);
@@ -192,11 +198,9 @@ void holdTimerUpdate(){
 }
 
 Note checkChosen(){
-	for(Track t: tracks){
-		for(Note n: t.notes){
-			if(n.touchingPoint(mouseX - width/2,mouseY,s(),step())){
-				return n;
-			}
+	for(Note n: tracks.get(trackInd).notes){
+		if(n.touchingPoint(mouseX - width/2,mouseY,s(),step())){
+			return n;
 		}
 	}
 	return null;

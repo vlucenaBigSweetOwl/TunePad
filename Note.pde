@@ -47,11 +47,11 @@ class Note implements Comparable{
 		pitch = (int)(-y/row + rollMid + (rollZoom/2));
 	}
 
-	void display(int s, int step, float hue){
+	void display(int s, int step, float hue, float trans){
 		updateDim(s,step);
 
-		fill(hue,100,255,50);
-		stroke(hue,100,255);
+		fill(hue,100,255,trans/3);
+		stroke(hue,100,255,trans);
 		rect(x,y,w,h);
 	}
 

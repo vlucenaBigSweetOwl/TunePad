@@ -145,13 +145,17 @@ class Track{
 	}
 
 	void display(int s, int step){
+		float trans = 100;
+		if(index == trackInd){
+			trans = 230;
+		}
 		for(int tap: taps){
 			float x = (tap*1.0-s)/step;
-			stroke(hue,255,255);
+			stroke(hue,255,255,trans);
 			line(x,0,x,height);
 		}
 		for(Note n: notes){
-			n.display(s,step,hue);
+			n.display(s,step,hue,trans);
 		}
 	}
 

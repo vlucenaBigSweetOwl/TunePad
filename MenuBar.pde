@@ -104,12 +104,17 @@ class MyMenuBar {
 		
 		JMenuItem itemSelectTrack = new JMenuItem("Select Track");
 		JMenuItem itemNewTrack = new JMenuItem("New Track");
+		JMenuItem itemDeleteTrack = new JMenuItem("Delete Track");
+		JMenuItem itemTrackName = new JMenuItem("Set Track Name");
 		JMenuItem itemTrackInstr = new JMenuItem("Set Track Instrument");
 		JMenuItem itemTrackColor = new JMenuItem("Set Track Color");
 		//MenuItem itemRecent = new MenuItem("Open Recent");
 
 		trackm.add(itemSelectTrack);
 		trackm.add(itemNewTrack);
+		trackm.add(itemDeleteTrack);
+		trackm.addSeparator();
+		trackm.add(itemTrackName);
 		trackm.add(itemTrackInstr);
 		trackm.add(itemTrackColor);
 
@@ -133,13 +138,20 @@ class MyMenuBar {
 
 		itemNewTrack.addActionListener((new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent a) {
+					newTrack();
+				}}));
+
+		itemDeleteTrack.addActionListener((new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent a) {
+					deleteTrack();
+				}}));
+
+		itemTrackName.addActionListener((new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent a) {
 					String name = uib.showTextInputDialog("Track Name:");
-					if(name.equals("")){
-						tracks.add(new Track(tracks.size()));
-					} else {
-						tracks.add(new Track(name,tracks.size()));
+					if(name != null){
+						tracks.get(trackInd).name = name;
 					}
-					trackInd = tracks.size()-1;
 				}}));
 
 		itemTrackInstr.addActionListener((new java.awt.event.ActionListener() {

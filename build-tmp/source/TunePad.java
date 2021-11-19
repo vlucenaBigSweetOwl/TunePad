@@ -149,7 +149,7 @@ String[] instrumentList;
 	
 	minim = new Minim(this);
 
-	textSize(30);
+	
 	colorMode(HSB);
 	startSongPick();
 
@@ -166,6 +166,7 @@ String[] instrumentList;
  public void draw(){
 	background(0);
 	if(state == EDIT){
+
 		zoom = zoom * pow(zoomSpeed,zoomTotal);
 		off = offBase * playBackRate;
 		playBackRate = pow(2,(1/12.0f) * playBackInd);
@@ -173,22 +174,25 @@ String[] instrumentList;
 		int s = s();
 		int step = (int)(sig.length*1.0f/width / zoom);
 
+		textSize(30);
+		textAlign(LEFT,CENTER);
 		fill(255);
-		text(playBackInd + " cent(s)",50,50);
+		text(playBackInd + " cent(s)",50,30);
 		String toolString =  "???";
 		if(tool==ARROW){toolString="ARROW";}
 		if(tool==TEMPO){toolString="TEMPO";}
 		if(tool==PEN){toolString="PEN";}
 		if(tool==TAP){toolString="TAP";}
 		if(tool==SECTION){toolString="SECTION";}
-		text("Tool: " + toolString,width - 200,50);
+		text("Tool: " + toolString,width - 200,30);
 		if(quan[tool]){
-			text("Quantize: ON",width - 200,100);
+			text("Quantize: ON",width - 200,60);
 		} else {
-			text("Quantize: OFF",width - 200,100);
+			text("Quantize: OFF",width - 200,60);
 		}
 		
 
+		strokeWeight(1);
 		translate(width/2,0);
 		for(int i = -width/2; i < width/2; i+=2){
 			int place = constrain(s + step*i,0,sig.length-1);
@@ -293,6 +297,7 @@ String[] instrumentList;
 		lastS = s;
 		
 		holdTimerUpdate();
+		drawTrackPicker();
 
 	} else if (state == LOAD_SONG){
 		//background(0);
@@ -306,7 +311,7 @@ String[] instrumentList;
 	}
 
 	if(!focused){
-		fill(30,30,255,140);
+		fill(30,50,0,150);
 		rect(-1000,-1000,10000,10000);
 	}
 }
@@ -363,13 +368,76 @@ String[] instrumentList;
 	return (int)(sample.sampleRate()*0.27f*playBackRate);
 }
 
+
+int y = 70;
+int w = 200;
+int h = 40;
+ public void drawTrackPicker(){
+	resetMatrix();
+	int i = 0;
+	for(Track t: tracks){
+		strokeWeight(3);
+		if(t.index == trackInd){
+			stroke(255);
+			fill(t.hue,155,255,200);
+			rect(0,y + i*h,w+20,h);
+			fill(255);
+		} else {
+			stroke(255,150);
+			fill(t.hue,155,255,100);
+			rect(0,y + i*h,w,h);
+			fill(255,150);
+		}
+		textAlign(LEFT,CENTER);
+		text(t.name,30,y + (i+.5f)*h);
+		i++;
+	}
+	textAlign(CENTER,CENTER);
+	fill(255,0,255,200);
+	text("+",w/2,y+(i+.5f)*h);
+}
+
+ public boolean checkTrackSelector(){
+	if(mouseX < w){
+		int ind = (mouseY - y)/h;
+		if(ind < tracks.size()){
+			trackInd = ind;
+			return true;
+		} else if (ind == tracks.size()){
+			newTrack();
+			return true;
+		}
+		
+	}
+	return false;
+}
+
+
+ public void newTrack(){
+	String name = uib.showTextInputDialog("Track Name:");
+	if(name == null || name.equals("")){
+		tracks.add(new Track(tracks.size()));
+	} else {
+		tracks.add(new Track(name,tracks.size()));
+	}
+	trackInd = tracks.size()-1;
+}
+
+ public void deleteTrack(){
+	tracks.remove(trackInd);
+	if(trackInd == tracks.size()){
+		trackInd--;
+	}
+}
+
 boolean leftHeld, rightHeld, shiftHeld, ctrlHeld, altHeld, qHeld, lmHeld, rmHeld;
 int rmTimer, lmTimer, qTimer;
 int leftTime, rightTime;
 int mouseDist;
-int hold = 12;
+int hold = 10;
 int lastPitch;
 boolean metafocused = false;
+int pressX,pressY;
 
  public void mousePressed(){
 	if(!metafocused){
@@ -379,12 +447,17 @@ boolean metafocused = false;
 	if(state != EDIT){
 		return;
 	}
+	if(checkTrackSelector()){
+		return;
+	}
+
 	if(mouseButton == LEFT){
 		lmHeld = true;
 	} else if(mouseButton == RIGHT){
 		rmHeld = true;
 	}
-
+	pressX = mouseX;
+	pressY = mouseY;
 	if(tool == PEN){
 		int row = (int)((height - mouseY)/(height*1.0f/rollZoom)) + 1;
 		int pitch = rollMid - (rollZoom/2) + row;
@@ -432,10 +505,10 @@ boolean metafocused = false;
 		}
 		
 	}
-	if(tool == PEN && lmHeld){
+	if(tool == PEN){
 		int row = (int)((height - mouseY)/(height*1.0f/rollZoom)) + 1;
 		int pitch = rollMid - (rollZoom/2) + row;
-		if(mouseButton == LEFT){
+		if(lmHeld){
 			if(lmTimer > hold){
 				//TODO
 				if(chosen.length < 0){
@@ -449,9 +522,6 @@ boolean metafocused = false;
 						chosen.length = (int)(tempo/tempoDiv);
 					}
 				}
-				
-				
-				// note off later?
 			} else {
 				tracks.get(trackInd).addNote(XtoS(mouseX),pitch,-1, quan[PEN]);
 				// TODO: midi volume
@@ -459,8 +529,8 @@ boolean metafocused = false;
 		}
 
 		Track t = tracks.get(trackInd);
-		t.midibus.sendNoteOn(trackInd,pitch+playBackInd,t.volume);
 		t.midibus.sendNoteOff(trackInd,lastPitch,t.volume);
+		t.midibus.sendNoteOff(trackInd,pitch,t.volume);
 	}
 	
 	//TODO
@@ -495,11 +565,12 @@ boolean metafocused = false;
 		qTimer++;
 	}
 
-	int row = (int)((height - mouseY)/(height*1.0f/rollZoom)) + 1;
-	int pitch = rollMid - (rollZoom/2) + row;
+	
 
 	if(tool == PEN && lmTimer == hold){
-		chosen = tracks.get(trackInd).addNoteX(mouseX,pitch,0, quan[PEN]);
+		int row = (int)((height - pressY)/(height*1.0f/rollZoom)) + 1;
+		int pitch = rollMid - (rollZoom/2) + row;
+		chosen = tracks.get(trackInd).addNoteX(pressX,pitch,0, quan[PEN]);
 	}
 	if(lmTimer > hold){
 		if(tool == TAP){
@@ -520,6 +591,8 @@ boolean metafocused = false;
 
 	if(rmTimer > hold){
 		if(tool == PEN){
+			int row = (int)((height - mouseY)/(height*1.0f/rollZoom)) + 1;
+			int pitch = rollMid - (rollZoom/2) + row;
 			if(pitch != lastPitch){
 				Track t = tracks.get(trackInd);
 				t.midibus.sendNoteOff(trackInd,lastPitch+playBackInd,t.volume);
@@ -556,11 +629,9 @@ boolean metafocused = false;
 }
 
  public Note checkChosen(){
-	for(Track t: tracks){
-		for(Note n: t.notes){
-			if(n.touchingPoint(mouseX - width/2,mouseY,s(),step())){
-				return n;
-			}
+	for(Note n: tracks.get(trackInd).notes){
+		if(n.touchingPoint(mouseX - width/2,mouseY,s(),step())){
+			return n;
 		}
 	}
 	return null;
@@ -843,12 +914,17 @@ class MyMenuBar {
 		
 		JMenuItem itemSelectTrack = new JMenuItem("Select Track");
 		JMenuItem itemNewTrack = new JMenuItem("New Track");
+		JMenuItem itemDeleteTrack = new JMenuItem("Delete Track");
+		JMenuItem itemTrackName = new JMenuItem("Set Track Name");
 		JMenuItem itemTrackInstr = new JMenuItem("Set Track Instrument");
 		JMenuItem itemTrackColor = new JMenuItem("Set Track Color");
 		//MenuItem itemRecent = new MenuItem("Open Recent");
 
 		trackm.add(itemSelectTrack);
 		trackm.add(itemNewTrack);
+		trackm.add(itemDeleteTrack);
+		trackm.addSeparator();
+		trackm.add(itemTrackName);
 		trackm.add(itemTrackInstr);
 		trackm.add(itemTrackColor);
 
@@ -872,13 +948,20 @@ class MyMenuBar {
 
 		itemNewTrack.addActionListener((new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent a) {
+					newTrack();
+				}}));
+
+		itemDeleteTrack.addActionListener((new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent a) {
+					deleteTrack();
+				}}));
+
+		itemTrackName.addActionListener((new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent a) {
 					String name = uib.showTextInputDialog("Track Name:");
-					if(name.equals("")){
-						tracks.add(new Track(tracks.size()));
-					} else {
-						tracks.add(new Track(name,tracks.size()));
+					if(name != null){
+						tracks.get(trackInd).name = name;
 					}
-					trackInd = tracks.size()-1;
 				}}));
 
 		itemTrackInstr.addActionListener((new java.awt.event.ActionListener() {
@@ -1033,11 +1116,11 @@ class Note implements Comparable{
 		pitch = (int)(-y/row + rollMid + (rollZoom/2));
 	}
 
-	 public void display(int s, int step, float hue){
+	 public void display(int s, int step, float hue, float trans){
 		updateDim(s,step);
 
-		fill(hue,100,255,50);
-		stroke(hue,100,255);
+		fill(hue,100,255,trans/3);
+		stroke(hue,100,255,trans);
 		rect(x,y,w,h);
 	}
 
@@ -1147,11 +1230,22 @@ class Note implements Comparable{
 	out.setGain(volume);
 
 	
-
-	saveName = dataPath("")+"\\saves\\"
+	int ind = fileName.lastIndexOf('\\');
+	if(ind == -1){
+		ind = fileName.lastIndexOf('/');
+		if(ind != -1){
+			saveName = dataPath("")+"/saves/"
+			+ fileName.substring(fileName.lastIndexOf('/'),fileName.lastIndexOf('.'))
+			+ "SAVE.json";
+		} else {
+			saveName = "";
+		}
+	} else {
+		saveName = dataPath("")+"\\saves\\"
 		+ fileName.substring(fileName.lastIndexOf('\\'),fileName.lastIndexOf('.'))
 		+ "SAVE.json";
-	//saveName = fileName.substring(0,fileName.lastIndexOf('.')) + "SAVE.json";
+	}
+
 	File temp = new File(saveName);
 	if(temp.exists()){
 		uib.showConfirmDialog(
@@ -1418,13 +1512,17 @@ class Track{
 	}
 
 	 public void display(int s, int step){
+		float trans = 100;
+		if(index == trackInd){
+			trans = 230;
+		}
 		for(int tap: taps){
 			float x = (tap*1.0f-s)/step;
-			stroke(hue,255,255);
+			stroke(hue,255,255,trans);
 			line(x,0,x,height);
 		}
 		for(Note n: notes){
-			n.display(s,step,hue);
+			n.display(s,step,hue,trans);
 		}
 	}
 

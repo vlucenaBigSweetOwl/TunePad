@@ -109,7 +109,7 @@ void setup(){
 	
 	minim = new Minim(this);
 
-	textSize(30);
+	
 	colorMode(HSB);
 	startSongPick();
 
@@ -126,6 +126,7 @@ int step(){
 void draw(){
 	background(0);
 	if(state == EDIT){
+
 		zoom = zoom * pow(zoomSpeed,zoomTotal);
 		off = offBase * playBackRate;
 		playBackRate = pow(2,(1/12.0) * playBackInd);
@@ -133,22 +134,25 @@ void draw(){
 		int s = s();
 		int step = (int)(sig.length*1.0/width / zoom);
 
+		textSize(30);
+		textAlign(LEFT,CENTER);
 		fill(255);
-		text(playBackInd + " cent(s)",50,50);
+		text(playBackInd + " cent(s)",50,30);
 		String toolString =  "???";
 		if(tool==ARROW){toolString="ARROW";}
 		if(tool==TEMPO){toolString="TEMPO";}
 		if(tool==PEN){toolString="PEN";}
 		if(tool==TAP){toolString="TAP";}
 		if(tool==SECTION){toolString="SECTION";}
-		text("Tool: " + toolString,width - 200,50);
+		text("Tool: " + toolString,width - 200,30);
 		if(quan[tool]){
-			text("Quantize: ON",width - 200,100);
+			text("Quantize: ON",width - 200,60);
 		} else {
-			text("Quantize: OFF",width - 200,100);
+			text("Quantize: OFF",width - 200,60);
 		}
 		
 
+		strokeWeight(1);
 		translate(width/2,0);
 		for(int i = -width/2; i < width/2; i+=2){
 			int place = constrain(s + step*i,0,sig.length-1);
@@ -253,6 +257,7 @@ void draw(){
 		lastS = s;
 		
 		holdTimerUpdate();
+		drawTrackPicker();
 
 	} else if (state == LOAD_SONG){
 		//background(0);
@@ -266,7 +271,7 @@ void draw(){
 	}
 
 	if(!focused){
-		fill(30,30,255,140);
+		fill(30,50,0,150);
 		rect(-1000,-1000,10000,10000);
 	}
 }
@@ -321,4 +326,66 @@ void checkNote(float s, float lastS){
 
 int getMIDIoff(){
 	return (int)(sample.sampleRate()*0.27*playBackRate);
+}
+
+
+int y = 70;
+int w = 200;
+int h = 40;
+void drawTrackPicker(){
+	resetMatrix();
+	int i = 0;
+	for(Track t: tracks){
+		strokeWeight(3);
+		if(t.index == trackInd){
+			stroke(255);
+			fill(t.hue,155,255,200);
+			rect(0,y + i*h,w+20,h);
+			fill(255);
+		} else {
+			stroke(255,150);
+			fill(t.hue,155,255,100);
+			rect(0,y + i*h,w,h);
+			fill(255,150);
+		}
+		textAlign(LEFT,CENTER);
+		text(t.name,30,y + (i+.5)*h);
+		i++;
+	}
+	textAlign(CENTER,CENTER);
+	fill(255,0,255,200);
+	text("+",w/2,y+(i+.5)*h);
+}
+
+boolean checkTrackSelector(){
+	if(mouseX < w){
+		int ind = (mouseY - y)/h;
+		if(ind < tracks.size()){
+			trackInd = ind;
+			return true;
+		} else if (ind == tracks.size()){
+			newTrack();
+			return true;
+		}
+		
+	}
+	return false;
+}
+
+
+void newTrack(){
+	String name = uib.showTextInputDialog("Track Name:");
+	if(name == null || name.equals("")){
+		tracks.add(new Track(tracks.size()));
+	} else {
+		tracks.add(new Track(name,tracks.size()));
+	}
+	trackInd = tracks.size()-1;
+}
+
+void deleteTrack(){
+	tracks.remove(trackInd);
+	if(trackInd == tracks.size()){
+		trackInd--;
+	}
 }

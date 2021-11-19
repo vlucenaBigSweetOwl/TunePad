@@ -3,7 +3,7 @@
     false,
     false,
     false,
-    false,
+    true,
     false,
     false,
     false,
@@ -22,7 +22,7 @@
     "tempoSet": true,
     "tempoDiv": 2
   },
-  "trackInd": 0,
+  "trackInd": 2,
   "tool": 3,
   "tracks": [
     {
@@ -35,122 +35,122 @@
     {
       "notes": [
         {
-          "length": 8275,
+          "length": 33102,
           "time": 4658,
           "pitch": 57
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 4658,
           "pitch": 72
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 46036,
           "pitch": 59
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 46036,
           "pitch": 74
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 62587,
           "pitch": 60
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 62587,
           "pitch": 76
         },
         {
-          "length": 8275,
+          "length": 24826,
           "time": 103965,
           "pitch": 55
         },
         {
-          "length": 8275,
+          "length": 24826,
           "time": 103965,
           "pitch": 67
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 128792,
           "pitch": 53
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 128792,
           "pitch": 69
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 178445,
           "pitch": 53
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 178445,
           "pitch": 74
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 194997,
           "pitch": 55
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 194997,
           "pitch": 72
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 236375,
           "pitch": 52
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 236375,
           "pitch": 71
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 269477,
           "pitch": 57
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 269477,
           "pitch": 72
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 310855,
           "pitch": 48
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 310855,
           "pitch": 74
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 327407,
           "pitch": 50
         },
         {
-          "length": 8275,
+          "length": 33102,
           "time": 327407,
           "pitch": 76
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 368785,
           "pitch": 52
         },
         {
-          "length": 8275,
+          "length": 16551,
           "time": 368785,
           "pitch": 69
         },
@@ -165,19 +165,26 @@
           "pitch": 79
         },
         {
-          "length": 8275,
+          "length": 57929,
           "time": 393611,
           "pitch": 53
         },
         {
-          "length": 8275,
+          "length": 57929,
           "time": 393611,
           "pitch": 76
         }
       ],
       "taps": [],
       "name": "Piano",
-      "hue": 91.75038146972656,
+      "hue": 129.14515686035156,
+      "instrument": 0
+    },
+    {
+      "notes": [],
+      "taps": [],
+      "name": "Track 2",
+      "hue": 178.36801147460938,
       "instrument": 0
     }
   ]

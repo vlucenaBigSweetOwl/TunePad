@@ -73,11 +73,22 @@ void songPick(File f){
 	out.setGain(volume);
 
 	
-
-	saveName = dataPath("")+"\\saves\\"
+	int ind = fileName.lastIndexOf('\\');
+	if(ind == -1){
+		ind = fileName.lastIndexOf('/');
+		if(ind != -1){
+			saveName = dataPath("")+"/saves/"
+			+ fileName.substring(fileName.lastIndexOf('/'),fileName.lastIndexOf('.'))
+			+ "SAVE.json";
+		} else {
+			saveName = "";
+		}
+	} else {
+		saveName = dataPath("")+"\\saves\\"
 		+ fileName.substring(fileName.lastIndexOf('\\'),fileName.lastIndexOf('.'))
 		+ "SAVE.json";
-	//saveName = fileName.substring(0,fileName.lastIndexOf('.')) + "SAVE.json";
+	}
+
 	File temp = new File(saveName);
 	if(temp.exists()){
 		uib.showConfirmDialog(
